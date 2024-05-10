@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.16)
+project(CMake_Notes)
+
+# add_subdirectory(lesson1_1)
+# add_subdirectory(lesson1_2)
+# add_subdirectory(lesson2_1)
+# add_subdirectory(lesson2_2)
+# add_subdirectory(lesson2_opencv)
+# add_subdirectory(lesson3_1)
+# add_subdirectory(lesson4_opencv)
+add_subdirectory(lesson4_1)
