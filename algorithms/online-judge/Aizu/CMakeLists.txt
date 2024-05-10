@@ -1,0 +1,1 @@
+add_executable(p1 ALDS1_1_A.cpp)
