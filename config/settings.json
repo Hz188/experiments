@@ -1,0 +1,77 @@
+{
+    "security.workspace.trust.untrustedFiles": "open",
+    "editor.accessibilitySupport": "off",
+    "terminal.integrated.inheritEnv": false,
+    "git.autofetch": true,
+
+    // vim config
+    "vim.easymotion": true,
+    "vim.incsearch": true,
+    "vim.useSystemClipboard": true,
+    "vim.useCtrlKeys": true,
+    "vim.hlsearch": true,
+    "vim.insertModeKeyBindings": [
+        {
+            "before": ["j", "k"],
+            "after": ["<Esc>"]
+        }
+    ],
+    "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": ["<leader>", "d"],
+            "after": ["d", "d"]
+        },
+        {
+            "before": ["<leader>", "l"],
+            "after": ["$"]
+        },
+        {
+            "before": ["<leader>", "a"],
+            "after": ["0"]
+        },
+        {
+            "before": ["<C-n>"],
+            "commands": [":nohl"]
+        },
+        {
+            "before": ["K"],
+            "commands": ["lineBreakInsert"],
+            "silent": true
+        },
+        {
+            "before": ["<leader>", "t"],
+            "commands": ["workbench.action.terminal.focus"],
+            "silent": true
+        }
+
+    ],
+    "vim.leader": "<space>",
+    "vim.handleKeys": {
+        "<C-a>": false,
+        "<C-f>": false
+    },
+    
+    "extensions.experimental.affinity": {
+        "vscodevim.vim": 1
+    },
+    "workbench.iconTheme": "vscode-icons",
+    "cmake.options.statusBarVisibility": "visible",
+    "explorer.confirmDragAndDrop": false,
+    "files.autoSave": "afterDelay",
+    "notebook.lineNumbers": "on",
+    
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": false
+    },
+    "vim.smartRelativeLine": true,
+    "cmake.configureOnOpen": true,
+    "leetcode.endpoint": "leetcode-cn",
+    "leetcode.workspaceFolder": "/Users/genghaozhe/Desktop/Code/experiments/algorithms/leetcode",
+    "leetcode.hint.configWebviewMarkdown": false,
+    "leetcode.defaultLanguage": "cpp",
+    "leetcode-cpp-debugger.source": "[online]leetcode-cn.com",
+    "debug-leetcode.cppCompiler": "clang",
+    "explorer.confirmDelete": false,
+
+}
