@@ -1,0 +1,58 @@
+3. Set
+    3.1 Set集合的概述和特点 Demo1
+        不包含重复元素的集合。
+        更正式地说，集合不包含元素e1和e2(如e1.equals(e2))，最多只包含一个空元素。
+        正如其名称所暗示的，该接口对数学集的抽象进行建模。
+        没有带索引的方法，无法用普通for遍历
+
+    3.2 Hash值 HashDemo
+        是JDK根据对象的地址或者字符串或者数字算出来的int类型的数值
+        Object类中有一个方法可以获取对象的hash value
+        public int hashCode()
+
+        同一个对象多次调用hashCode返回哈希值应该是相同
+        默认情况下，不同对象地哈希值是不同的，而重写hashCode()方法，可以让不同对象hash value 相同
+
+    3.3 HashSet集合概述和特点 HashSetDemo1
+        - 底层数据结构是hash table
+        - 不保证迭代顺序
+        - 没有带索引的方法，无法用普通for遍历
+        - 是Set集合，不能包含相同元素
+
+    3.4 HashSet集合保证元素唯一性的源码分析 HashSetDemo1
+        要保证元素唯一性，要重写hashCode 和 equals方法
+
+    3.5 常见数据结构 哈希表
+        Before JDK8
+            底层采用 数组 + 链表实现，可以说是一个元素为链表的数组
+        After JDK8
+            长度比较长时，底层实现了优化
+        动画演示 https://www.bilibili.com/video/BV1gb411F76B?p=243
+
+    3.6 LinkedHashSet集合概述和特点
+        哈希表和链表实现Set接口，具有可预测的迭代顺序
+        链表保证元素有序，元素的存储和取出顺序是一致的
+        哈希表保证元素唯一，没有重复的元素
+
+    3.7 TreeSet集合概述和特点 TreeSetDemo
+        元素有序，这列的顺序不是指存储和取出的顺序，而是按照一定规则排序，具体排序方式取决于构造方法
+            TreeSet() 按照自然排序
+            TreeSet(Comparator comparator) 按照指定的比较亲进行排序
+        没有带索引的方法，所以不能使用普通for循环遍历
+        是Set集合，没有重复的元素
+
+    3.8 自然排序Comparable的使用 TreeSetDemo2
+        存储学生对象遍历，创建TreeSet无参构造方法
+        要求：按照年龄从小到大排序，年龄相同，按照姓名字母顺序排序
+
+        无参构造方法是自然排序
+        自然排序需要实现Comparable接口，重写CompareTo方法
+        重写时，分清比较的主次条件
+
+    3.9 比较器排序 Comparator TreeSetDemo3
+        存储学社是那个对象遍历，TreeSet 有参构造方法
+        要求：按照年龄从小到大排序，年龄相同，按照姓名字母顺序排序
+
+        有参构造使用的是比较器的方法进行排序
+        比较器排序，就是让集合构造方法接受Comparator的实现类对象，重写compareTo(T o1,T o2)
+        重写方法时，必须按照一定排序规则，分清主要和次要条件

@@ -1,0 +1,27 @@
+5 Map
+    5.1 Map集合概述和使用 Demo1
+        interface Map<K,V>
+        K --> 键的类型 V --> 值的类型
+        将键映射到值的对象，不能包含重复的键，每个键最多映射一个值
+        创建Map对象
+            多态形式
+            HashMap 具体实现类
+
+    5.2 Map集合的基本功能 Demo2
+        V put(K key, V value); 返回的是当前key 对应的value
+        V remove(Object key);  根据键删除元素
+        boolean containsKey(Object key);  是否包含key
+        boolean containsValue(Object value);  是否包含value
+        void clear(); 清空所有映射
+        boolean isEmpty(); 判断是否为空
+        int size(); 返回键值对的个数
+
+    5.3 Map的获取功能  Demo3
+        V get(Object key)  根据key获取value
+        Set<K> keySet()   获取key集合
+        Collection<V> values() 获取值的集合
+        Set<Map.Entry<K,V>> entrySet  获取键值对对象的集合
+
+    5.4 集合的遍历 方式1 Traverse2
+
+    5.5 集合的遍历 方式2 Traverse2

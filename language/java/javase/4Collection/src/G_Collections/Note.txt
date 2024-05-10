@@ -1,0 +1,16 @@
+6 Collections
+
+    6.1 Collections 类概述和使用 Demo1
+        是针对集合操作的工具类
+        常用方法
+            public static <T extends Comparable<? super T>> void sort​(List<T> list)
+                指定列表按升序排列
+            public static void reverse​(List<?> list)
+                反转列表中的元素
+            public static void shuffle​(List<?> list)
+                使用默认的随机源随机排列指定列表
+
+    6.2 案例  Demo2.java && Student.java
+        ArrayList 存储学生对象
+        使用 Collections 进行排序
+        按照年龄从大大小，同年龄按照姓名的字母顺序

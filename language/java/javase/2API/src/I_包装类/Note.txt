@@ -1,0 +1,23 @@
+包装类概述 demo1
+    public static final int   MIN_VALUE = 0x80000000;
+    public static final int   MAX_VALUE = 0x7fffffff;
+    用于基本数据类型和字符串之间的转换
+    byte -> Byte
+    short -> Short
+    int -> Integer
+    long -> Long
+    float -> Float
+    double -> Double
+    char -> Character
+    boolean -> Boolean
+
+自动拆箱 | 自动装箱
+    装箱：将基本数据类型转换为对应的包装类类型
+        ii = Integer.valueOf(100)
+        ii = 100; 自动装箱
+    拆箱：把包装类类型转换为对应的基本数据类型
+        ii.intValue();
+        ii+=200; 自动拆箱再装箱
+
+    使用包装类记得判断是否为null
+    推荐：只要是使用对象，在使用前都应当进行不为null的判断

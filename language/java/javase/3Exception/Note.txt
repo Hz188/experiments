@@ -1,0 +1,72 @@
+异常
+    就是程序出现了不正常情况
+
+异常体系
+    Throwable
+    /           \
+    Error       Exception
+                /         \
+       RuntimeException     非RuntimeException
+
+Error
+    严重问题，不需要处理
+
+Exception
+    异常类，程序本身可以处理的问题
+    RuntimeException 编译器是不检查的，出现问题后需要我们修改代码
+    非RuntimeException 编译期间就必须处理，否则无法通过编译，就更不能正常运行了
+
+JVM 默认的异常处理方案 demo1
+    如果程序出现了问题，我们没有处理，那么JVM会默认处理
+    1、把异常的名称，异常原因，异常的位置等信息输出在了控制台
+    2、程序停止执行
+
+异常处理
+    try ... catch ...       demo2
+        try{
+            可能出现异常的代码;
+        } catch(异常类型 变量名){
+            异常处理代码;
+        }
+        流程
+            程序从try里开始执行
+            出现异常，生成一个异常对象，该对象被提交给Java运行时系统
+            Java运行时系统接收到机场对象时，会到catch中找匹配的异常类，找到后进行异常处理
+            完毕后继续向后执行
+
+
+
+    throws ...
+        有些异常 我们处理不了，或者无权限处理
+        throw 异常类名;跟在方法后括号后面
+
+Throwable 成员方法 demo2
+    public String getMessage()   返回异常的详细消息字符串
+    public String toString()     返回此可抛出的简短描述
+    public void printStackTrace() 把异常错误信息输出在控制柜
+
+编译时异常和运行时异常的区别
+    Java中异常分为两大类 如上
+    也称为 受检异常和非受检异常   checked exception || unchecked exception
+    所有的RuntimeException类及其子类 都是运行时异常，其他都是编译时异常
+    编译时异常
+        必须显式处理，否则会发生错误，无法通过编译
+    运行时异常
+        无需显式处理，也可以和编译时异常一样处理
+        可以不处理，需要我们回来修改代码
+
+自定义异常    ScoreException.java
+    public class A extends Exception {
+        无参构造
+        有参构造
+    }
+
+    关键字 throw
+        在方法体内，跟的是异常对象名
+        表示抛出异常，有方法体内的语句处理
+        执行throw一定抛出了某种异常
+        throws
+            跟在方法声明后，跟的是异常类名，表示抛出异常
+            由该方法的调用者处理
+            表示抛出异常的一种可能性
+

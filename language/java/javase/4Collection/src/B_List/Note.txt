@@ -1,0 +1,70 @@
+2. List
+    2.1 List集合概述和特点
+        1、有序集合（序列），用户可以精确的控制每个元素插入的位置，可以通过整数索引访问并搜索元素
+        2、与Set不同，通常允许重复
+
+        特点
+            1、有序：存储和取出的元素顺序一致
+            2、可重复：存储的元素可以重复
+
+    2.2 List集合的特有方法 demo1
+        void add(int index, E e)
+        E remove(int index)     返回被删除的元素
+        E set(int index, E e)   返回被修改的元素
+        E get(int index)
+
+    2.3 并发修改异常 demo2
+        while (it.hasNext()) {
+            String next = it.next();  // Exception
+            if (next.equals("world")) {
+                list.add("javaee");
+            }
+        }
+        java.util.ConcurrentModificationException
+            This exception may be thrown by methods
+            that have detected concurrent modification of an object
+            when such modification is not permissible.
+
+        产生原因
+            迭代器遍历过程中，通过集合修改了集合元素的长度，
+            造成了迭代器获取元素中，判断预期修改值和实际修改值不一致
+        解决方案
+            换用for循环遍历。然后用集合对象操作
+
+    2.4 ListIterator demo3
+        列表迭代器
+            An iterator for lists that allows the programmer to traverse the list
+            in either direction, modify the list during iteration, and obtain
+            the iterator's current position in the list.
+            its cursor position always lies between the element that would be returned by a call to previous()
+            and the element that would be returned by a call to next().
+            An iterator for a list of length n has n+1 possible cursor positions, as illustrated by the carets (^) below:
+                                  Element(0)   Element(1)   Element(2)   ... Element(n-1)
+             cursor positions:  ^            ^            ^            ^                  ^
+        常用方法
+            见API文档，已看懂 具体原因 自己ctrl + B 看一下 ArrayList源码 不难
+    2.5 增强for循环
+        简化数组和Collection集合的遍历
+        实现iterable接口可以称为enhanced for 的目标
+        after JDK5，内部原理是一个iterator
+
+    2.6 数据结构
+        计算机存储数据，组织数据的方式
+    2.7 栈 Stack
+    2.8 队列 Queue
+    2.9 数组 Array 查询快 增删慢
+    2.10 链表 LinkedList  增删快 查询慢
+
+    2.11 List集合 子集特点
+        ArrayList LinkedList
+        |         |-> 底层数据结构是链表，查询快，增删慢
+        |-> 底层数据结构是数组，查询快，增删慢
+
+    2.12 LinkedList 集合的特有功能
+        public void addFirst(E e)
+        public void addLast(E e)
+        public E getFirst(E e)
+        public E getLast(E e)
+        public E removeFirst()
+        public E removeLast()
+

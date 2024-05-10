@@ -1,0 +1,68 @@
+1. Stream流
+    1.1 体验stream流                                                         Demo1
+        使用Stream流完成过滤操作
+        arr.stream().filter(s -> s.startsWith("张")).filter(s -> s.length()==3).forEach(System.out::println);
+        直接阅读代码的字面意思即可完美展现无关逻辑方式的语义：生成流，过滤姓张，过滤三个字的名字，逐一打印
+        Stream把真正的函数式编程风格引入到Java中
+
+    1.2 Stream流的生成方式                                                    Demo2
+        Stream流使用
+            1.生成流
+                通过数据源（集合，数组等）生成流
+                list.stream()
+            2.中间操作
+                一个流后面可以跟随零个或者多个中间操作，其目的主要是打开流，做出某种程度的数据过滤/映射，然后返回一个新流，
+                交给下一个操作使用
+                filter()
+            3.终结操作
+                一个流只能由一个终结操作，当这个操作执行后，流就被使用”光“了，无法再被操作。所以这必定是流的最后一个操作
+                forEach()
+        Stream流的常见生成方式
+            1.Collection体系的集合可以使用默认方法stream()生成流
+                default Stream<E> stream()
+            2.Map体系的集合间接的生成流
+            3.数组可以通过Stream接口的静态方法of(T...values)生成流
+
+    1.3 Stream流常见的中间操作方法
+
+        1. Stream<T> filter(Predicate predicate)                            Demo3
+            用于对流中的数据过滤
+            Predicate 谓词 test方法，用于判断条件，返回boolean值，具体见函数式接口
+        2. Stream<T> limit(long maxSize)                                    Demo4
+            返回此流中的元素组成的流，截取前指定参数个数的数据
+        3. Stream<T> skip(long n)                                           Demo4
+            跳过指定参数个数的数据，返回该流剩余元素组成的流
+        4. static Stream<T> concat(Stream a, Stream b)                      Demo5
+            合并a,b两个流为一个流
+        5. Stream<T> distinct()                                             Demo5
+            返回该流由不同元素(根据Object.equals(Object)组成的流
+        6. Stream<T> sorted()                                               Demo6
+            返回此流的元素组成的流，自然排序
+        7. Stream<T> sorted(Comparator comparator)                          Demo6
+            返回此流的元素组成的流，按比较器进行排序
+        8. <R> Stream<R> map(Function mapper)                               Demo7
+            返回由指定函数应用于此流的元素的结果组成的流
+            Function<R,T> R apply(T t) 见函数式变成 常用函数式接口
+        9. IntStream mapToInt(ToIntFunction mapper)                         Demo7
+            返回一个IntStream 其中包含给定函数应用于此流的元素的结果
+            IntStream 表示原始Int流
+            ToIntFunction int applyAsInt(T value)
+
+    1.4 Stream流的常见终结操作方法
+        1. void forEach(Consumer action)                                    Demo8
+            对每个流进行操作
+            Consumer 接口 void apply(T t) 对给定参数操作
+        2. long count()                                                     Demo8
+            返回流中的元素个数
+
+    1.5 Stream流的练习                                                       Demo9
+
+    1.6 Stream流的收集操作                                                    Demo10
+        使用流的方式，操作完毕后，想收回到集合中，该怎么办？
+        Stream流的收集方法
+            R collect(Collector collector)
+            但Collector是一个接口
+        工具类Collectors提供了具体的收集方式
+            public static <T> Collector toList() 把元素收集到List中
+            public static <T> Collector toSet() 把元素收集到Set中
+            public static Collector toMap(Function keyMapper, Function valueMapper) 把元素收集到集合中

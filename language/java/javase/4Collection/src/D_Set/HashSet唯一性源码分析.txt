@@ -1,0 +1,74 @@
+Set<String> set = new HashSet<>();
+set.add("hello");
+set.add("world");
+set.add("java");
+set.add("world");
+----------------------------------------------------
+HashSet
+    public boolean add(E e) {
+        return map.put(e, PRESENT)==null;
+    }
+----------------------------------------------
+HashMap
+    public V put(K key, V value) {
+        return putVal(hash(key), key, value, false, true);
+    }
+
+    static final int hash(Object key) {
+        int h;
+        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+    }
+
+    //这个int hash 和元素的hashCode()方法相关
+    final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+                       boolean evict) {
+        Node<K,V>[] tab; Node<K,V> p; int n, i;
+
+        //如果hash表没有初始化，就进行初始化
+        if ((tab = table) == null || (n = tab.length) == 0)
+            n = (tab = resize()).length;
+        //根据对象的hash值计算对象的存储位置，并且该位置如果没有元素，就存储元素
+        if ((p = tab[i = (n - 1) & hash]) == null)
+            tab[i] = newNode(hash, key, value, null);
+        else {
+            Node<K,V> e; K k;
+            /*
+                存入的元素和以前的元素比较hash值
+                    如果hash值不同，会继续向下执行 把元素添加到集合
+                    如果hash值相同，会调用key.equals(k)
+                        如果返回false，会继续向下执行 把元素添加到集合
+                        如果返回true，说明元素重复，不存储
+            */
+            if (p.hash == hash &&
+                ((k = p.key) == key || (key != null && key.equals(k))))
+                e = p;
+            else if (p instanceof TreeNode)
+                e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+            else {
+                for (int binCount = 0; ; ++binCount) {
+                    if ((e = p.next) == null) {
+                        p.next = newNode(hash, key, value, null);
+                        if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                            treeifyBin(tab, hash);
+                        break;
+                    }
+                    if (e.hash == hash &&
+                        ((k = e.key) == key || (key != null && key.equals(k))))
+                        break;
+                    p = e;
+                }
+            }
+            if (e != null) { // existing mapping for key
+                V oldValue = e.value;
+                if (!onlyIfAbsent || oldValue == null)
+                    e.value = value;
+                afterNodeAccess(e);
+                return oldValue;
+            }
+        }
+        ++modCount;
+        if (++size > threshold)
+            resize();
+        afterNodeInsertion(evict);
+        return null;
+    }

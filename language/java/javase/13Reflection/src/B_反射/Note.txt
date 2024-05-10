@@ -1,0 +1,88 @@
+2. 反射
+    2.1 反射概述
+        Java反射机制
+            是指在运行时去获取一个类的变量和方法信息。然后通过获取到的信息来创建对象，调用方法的一种机制。
+            由于这种动态性，可以极大的增强程序的灵活性，程序不用在编译期就完成确定，在运行期仍然可以扩展
+
+    2.2 获取Class类的对象                                                                 Demo
+        我们要想通过反射去使用一个类，首先我们要获取到该类的字节码文件对象，也就是类型为Class类型的对象
+        这里我们提供三种方式获取Class类型的对象
+            使用类的class属性来获取该类对应的Class对象。
+                举例：B_反射.Student.class将会返回Student类对应的Class对象
+            调用对象的getClass()方法, 返回该对象所属类对应的Class对象
+                该方法是Object类中的方法，所有的Java对象都可以调用该方法
+            使用Class类中的静态方法forName(String className)
+                该方法需要传入字符串参数，该字符串参数的值是某个类的全路径，也就是完整包名的路径
+    2.3 反射获取构造方法并使用                                                             Demo1-2-3
+        Class类中用于获取构造方法的方法
+            Constructor<?>[] getConstructors()
+                返回所有公共构造方法对象的数组
+            Constructor<?>[] getDeclaredConstructors()
+                返回所有构造方法对象的数组
+            Constructor<T> getConstructor(Class<?>... parameterTypes)
+                返回单个公共构造方法对象
+            Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
+                返回单个构造方法对象
+        Constructor类中用于创建对象的方法
+            T newInstance(Object... initargs)
+                根据指定的构造方法创建对象
+    2.4 反射获取构造方法并使用练习                                                          Demo1-2-3
+        练习：通过反射实现如下操作
+            Students = new Student("林青霞",30,"西安);
+            System.out.println();
+
+        基本数据类型也可以通过.class得到对应的Class类型
+
+    2.5 反射获取成员变量并使用                                                 Demo4
+        Class类中用于获取成员变量的方法
+            Field[] getFields()
+                返回所有公共成员变量对象的数组
+            Field[] getDeclaredFields()
+                返回所有成员变量对象的数组
+            Field getField(String name)
+                返回单个公共成员变量对象
+            Field getDeclaredField(String name)
+                返回单个成员变量对象
+        Field类中用于给成员变量赋值的方法
+            void set(Object obj, Object value)
+                给obj对象的成员变量赋值为value
+
+    2.6 反射获取成员变量并使用练习                                Demo4
+        练习：通过反射实现如下操作
+            Students = new StudentO;
+            s.name = "林青霞";
+            s.age= 30;
+            s.address= " 西安;
+            System.out.println(s);
+
+    2.7 反射获取成员方法并使用                                  Demo5
+        Class类中用于获取成员方法的方法
+            Method[] getMethods()
+                返回所有公共成员方法对象的数组，包括继承的
+            Method[] getDeclaredMethods()
+                返回所有成员方法对象的数组，不包括继承的
+            Method getMethod(String name, Class<?> .. parameterTypes)
+                返回单个公共成员方法对象
+            Method getDeclaredMethod(String name, Class<?... parameterTypes)
+                返回单个成员方法对象
+
+        Method类中用于调用成员方法的方法
+            Object invoke(Object obj, Object.. args)
+                调用obj对象的成员方法，参数是args，返回值是Object类型
+
+    2.8 反射获取成员方法并使用练习                            Demo5
+        练习：通过反射实现如下操作
+            Students. = new Student();
+            s.method();
+            s.method2("林青霞");
+            String ss = s.method3("林青霞",30);
+            System.out.println(ss);
+            s.function();
+
+    2.9 反射练习
+        1.越过泛型检查
+            ArrayListDemo
+        2.通过配置文件运行类中方法
+            test包
+
+
