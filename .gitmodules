@@ -1,3 +1,3 @@
 [submodule "ml/megatron-lm-2.5-reading"]
 	path = ml/megatron-lm-2.5-reading
-	url = git@github.com:Hz188/experiments.git
+	url = ../ml/megatron-lm-2.5-reading
