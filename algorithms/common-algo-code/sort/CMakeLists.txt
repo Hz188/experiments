@@ -1,0 +1,7 @@
+include_directories(../)
+add_executable(quick quickSort.cpp)
+add_executable(merge mergeSort.cpp)
+add_executable(insert insertSort.cpp)
+add_executable(bubble bubbleSort.cpp)
+add_executable(select selectSort.cpp)
+add_executable(shell shellSort.cpp)
