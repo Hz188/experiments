@@ -1,0 +1,7 @@
+add_executable(sizeof 01_sizeof.cpp)
+add_executable(unsigned 02_unsigned.cpp)
+add_executable(fast_least 03_fast_least_int.cpp)
+add_executable(size_t 04_size_t.cpp)
+add_executable(fp 05_float.cpp)
+add_executable(boolean 06_bool.cpp)
+add_executable(bool_input 07_bool_input.cpp)
