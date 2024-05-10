@@ -1,3 +1,0 @@
-[submodule "ml/megatron-lm-2.5-reading"]
-	path = ml/megatron-lm-2.5-reading
-	url = ./ml/megatron-lm-2.5-reading
