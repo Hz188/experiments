@@ -17,27 +17,69 @@
         }
     ],
     "vim.normalModeKeyBindingsNonRecursive": [
+        // {
+        //     "before": ["<leader>", "l"],
+        //     "after": ["$"]
+        // },
+        // {
+        //     "before": ["<leader>", "a"],
+        //     "after": ["0"]
+        // },
         {
-            "before": ["<leader>", "d"],
-            "after": ["d", "d"]
+            "before": ["J"],
+            "after": ["5", "j"]
         },
         {
-            "before": ["<leader>", "l"],
-            "after": ["$"]
+            "before": ["K"],
+            "after": ["5", "k"]
         },
         {
-            "before": ["<leader>", "a"],
-            "after": ["0"]
+            "before": ["t", "l"],
+            "commands": [":tabn"]
+        },
+        {
+            "before": ["t", "h"],
+            "commands": [":tabp"]
         },
         {
             "before": ["<C-n>"],
             "commands": [":nohl"]
         },
         {
-            "before": ["K"],
-            "commands": ["lineBreakInsert"],
-            "silent": true
+            "before": ["<leader>", "q"],
+            "commands": [":q"]
         },
+        //分屏移动
+        {
+            "before": ["<leader>", "s"],
+            "after": ["<C-w>", "s"]
+        },
+        {
+            "before": ["<leader>", "v"],
+            "after": ["<C-w>", "v"]
+        },
+        {
+            "before": ["<leader>", "j"],
+            "after": ["<C-w>", "j"]
+        },
+        {
+            "before": ["<leader>", "k"],
+            "after": ["<C-w>", "k"]
+        },
+        {
+            "before": ["<leader>", "l"],
+            "after": ["<C-w>", "l"]
+        },
+        {
+            "before": ["<leader>", "h"],
+            "after": ["<C-w>", "h"]
+        },
+        //分屏移动 end
+        // {
+        //     "before": ["K"],
+        //     "commands": ["lineBreakInsert"],
+        //     "silent": true
+        // },
         {
             "before": ["<leader>", "t"],
             "commands": ["workbench.action.terminal.focus"],
@@ -50,7 +92,8 @@
         "<C-a>": false,
         "<C-f>": false
     },
-    
+    "vim.smartRelativeLine": true,
+    // ===== vim config end ======
     "extensions.experimental.affinity": {
         "vscodevim.vim": 1
     },
@@ -64,7 +107,6 @@
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": false
     },
-    "vim.smartRelativeLine": true,
     "cmake.configureOnOpen": true,
     "leetcode.endpoint": "leetcode-cn",
     "leetcode.workspaceFolder": "/Users/genghaozhe/Desktop/Code/experiments/algorithms/leetcode",
@@ -73,5 +115,7 @@
     "leetcode-cpp-debugger.source": "[online]leetcode-cn.com",
     "debug-leetcode.cppCompiler": "clang",
     "explorer.confirmDelete": false,
+    "gitlens.graph.layout": "editor",
+    "cmake.showOptionsMovedNotification": false
 
 }
