@@ -1,0 +1,46 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "torchrun debug",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "torch.distributed.launch",
+            "args": [ 
+                "--standalone",
+                "--nnodes=1",
+                "--nproc-per-node=2", 
+                "${file}",
+                "--plugin=gemini_auto",
+                "-b 2",
+                "-s 4",
+                "-g",
+                "-l 4096"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}",
+                "CUDA_LAUNCH_BLOCKING": "1"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "justMyCode": false
+        },
+        {
+            "name": "pytest debug",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${file}",
+                "-s"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}",
+                "CUDA_LAUNCH_BLOCKING": "1"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "justMyCode": false
+        },
+    ]
+}
