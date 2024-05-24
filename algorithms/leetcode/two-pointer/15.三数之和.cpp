@@ -19,7 +19,7 @@ public:
             if(i > 0 && nums[i] == nums[i-1]) continue;
             // 2个小优化
             // i, i+1, i+2 > 0 直接break l往后都大于0
-            // i, n-1, n-2 < 0 直接break r往前都小于0
+            // i, n-1, n-2 < 0 直接continue 因为还会有更大的nums[i]
             int l = i + 1, r = n - 1;
             while(l < r) {
                 int sum = nums[l] + nums[r] + nums[i];
