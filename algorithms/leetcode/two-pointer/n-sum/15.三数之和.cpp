@@ -16,10 +16,15 @@ public:
         int n = nums.size();
         vector<vector<int>> res{};
         for(int i = 0; i < n-2; i++) {
+            // 3个小优化
+            // 1. i 和 i-1 相等，直接continue
             if(i > 0 && nums[i] == nums[i-1]) continue;
-            // 2个小优化
-            // i, i+1, i+2 > 0 直接break l往后都大于0
-            // i, n-1, n-2 < 0 直接continue 因为还会有更大的nums[i]
+            // 2. i, i+1, i+2 > 0 直接break
+            if(nums[i] + nums[i+1] + nums[i+2] > 0)
+                break;  //当前i不行，后面的i也不行，直接break
+            // 3. i, n-1, n-2 < 0 直接continue
+            if(nums[i] + nums[n-1] + nums[n-2] < 0)
+                continue; // 当前i不行，后面的i或许可以，所以continue
             int l = i + 1, r = n - 1;
             while(l < r) {
                 int sum = nums[l] + nums[r] + nums[i];
