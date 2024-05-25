@@ -28,22 +28,20 @@ public:
             int x = nums[right];
             right++; //窗口扩大
             s += x;
-            // 写法1
-            /*
-            while(s - nums[left] >= target) {
-                s -= nums[left];
-                left++;
-            }
-            if (s >= target) {
-                ans = min(ans, right - left + 1);
-            }
-            */
-            // 写法 2
+            // 写法1 满足要求到不满足要求
             while(s >= target) {
                 ans = min(ans, right - left);
                 s -= nums[left];
                 left++; // 窗口减小
             }
+            // 写法2 还是满足到不满足要求，只不过利用左边界进行了一些条件判断
+            // while(s - nums[left] >= target) {
+            //     s -= nums[left];
+            //     left++;
+            // }
+            // if (s >= target) {
+            //     ans = min(ans, right - left);
+            // }
         }
         return ans <= n ? ans : 0;
     }
