@@ -4,3 +4,5 @@ build/
 .idea/
 __pycache__/
 *.so
+*.out
+.pytest_cache/
