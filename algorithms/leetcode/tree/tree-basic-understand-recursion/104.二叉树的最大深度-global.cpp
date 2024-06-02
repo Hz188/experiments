@@ -21,9 +21,8 @@ public:
     int maxDepth(TreeNode* root) {
         if(!root) return 0;
 
-        int left = maxDepth(root->left);
-        int right = maxDepth(root->right);
-        return max(left, right) + 1;
+        dfs(root, 0);
+        return ans;
     }
 
 private:
@@ -33,8 +32,8 @@ private:
         if(!root) return;
         cnt += 1;
         ans = max(cnt, ans);
-        maxDepth(root->left, cnt)
-        maxDepth(root->right, cnt)
+        dfs(root->left, cnt);
+        dfs(root->right, cnt);
         // call:  dfs(root, 0);
     }
 };
