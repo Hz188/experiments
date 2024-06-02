@@ -69,3 +69,8 @@
 
 ![k个一组翻转的图示](../../../../assets/imgs/algorithms/leetcode/linked-list/reverse-linked-list/image.png)
 
+- 注意，在翻转left到right范围内的时候，在翻转结束后，几个循环不变量的语义是：
+    - p0是要翻转的[left,right]这一段的上一个节点也就是left-1
+    - pre是要翻转的[left,right]这一段的摸的上一个节点也就是right
+    - cur是要翻转的[left,right]这一段的下一个节点也就是right+1
+- 当left=1的时候，是没有p0的存在的，所以我们引入哨兵节点，用于统一全部的逻辑
