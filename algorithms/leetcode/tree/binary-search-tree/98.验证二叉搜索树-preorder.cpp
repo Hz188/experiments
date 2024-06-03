@@ -24,7 +24,6 @@ class Solution {
 public:
     //前序:节点值往下传 -> 函数参数
     bool isValidBST(TreeNode *root, long left = LONG_MIN, long right = LONG_MAX) {
-        return post_dfs(root).second != LONG_MAX;
         if (root == nullptr)
             return true;
         long x = root->val;
