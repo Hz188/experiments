@@ -22,35 +22,13 @@ using namespace std;
 
 class Solution {
 public:
-    //前序:节点值往下传
-    bool isValidBST(TreeNode *root, long left = LONG_MIN, long right = LONG_MAX) {
+    //前序:节点值往下传 -> 函数参数
+    bool isValidBST(TreeNode *root) {
+        if(!root) return true;
         return post_dfs(root).second != LONG_MAX;
-        if (root == nullptr)
-            return true;
-        long x = root->val;
-        return left < x && x < right &&
-               isValidBST(root->left, left, x) &&
-               isValidBST(root->right, x, right);
     }
-    // 中序遍历:判断严格递增
-    TreeNode* pre{nullptr};
-    bool valid{true};
-    void dfs(TreeNode* root) {
-        if(!root) return;
-        dfs(root->left);
-        if(!pre) {
-            pre = root;
-        } else {
-            if (pre->val >= root->val) {
-                valid = false;
-                return;
-            }
-            pre = root;
-        }
-        dfs(root->right);
-        // call dfs(root), then return valid;
-    }
-    // 后序遍历:节点值网上传
+
+    // 后序遍历:节点值往上传 -> 返回值
     pair<long, long> post_dfs(TreeNode* root) {
         // 要向上返回当前子树的{min, max}值
         // 所以空节点让他返回{inf, -inf}之后
