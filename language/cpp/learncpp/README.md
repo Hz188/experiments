@@ -1,2 +1,5 @@
-# Learncpp_Notes
-Code Demo &amp; Notes from learncpp.com
+# Learncpp
+
+Code demo, Notes from C++ tutorial: [learncpp.com](learncpp.com)
+
+

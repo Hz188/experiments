@@ -28,13 +28,13 @@ public:
         n = digits.size();
         if(digits.empty()) 
             return {};
-        back_track(digits, 0);
+        dfs(digits, 0);
         return ans;
     }
     int n{};
     vector<string> ans{};
     string path{};
-    void back_track(string& digits, int i){
+    void dfs(string& digits, int i){
         if(i == n) {
             ans.push_back(path);
             return;
@@ -42,7 +42,7 @@ public:
         int digit = digits[i] - '0';
         for(char c: MAPPING[digit]) {
             path.push_back(c);
-            back_track(digits, i+1);
+            dfs(digits, i+1);
             path.pop_back();
         }
 
