@@ -12,23 +12,26 @@ using namespace std;
 class Solution {
 public:
     vector<string> generateParenthesis(int n) {
-        //为什么能看做组合，其实等价于2n个位置选n个放左括号，其余位置放右括号
-        //第i个位置，选或不选两种选项(不选其实相当于选了右括号)
+
         int m = 2 * n;
         vector<string> ans{};
         string path(m, 'a');
-        function<void(int, int)> dfs = [&](int i, int open){
+        function<void(int, int)> dfs = [&](int i, int left){
             if(i == m){
                 ans.push_back(path);
                 return;
             }
-            if(open < n){
+            // [0...i) 中i目前还没放
+            // '(' 个数 = left
+            // ')' 个数 = i - left
+            if(left < n){  //还有左括号可以放
                 path[i] = '(';
-                dfs(i+1, open+1);
+                dfs(i+1, left+1);
             }
-            if(i - open < open) {
+            if(i - left < left) {  
+            //这个判断条件的意思是已经放的右小于左，说明括号还没完全闭合，可以接着放右
                 path[i] = ')';
-                dfs(i+1, open);
+                dfs(i+1, left);
             }
         };
         dfs(0, 0);//现在放了0个右，0个左

@@ -13,22 +13,19 @@ public:
     vector<vector<int>> combinationSum3(int k, int n) {
         vector<vector<int>> ans{};
         vector<int> path{};
-        function<void(int, int)> dfs = [&](int i, int sum) {
-            if(sum == 0 && path.size() == k) {
+        function<void(int, int)> dfs = [&](int i, int t) {
+            int d = k - path.size();//还需要选d个
+            if(t < 0 || (9+9-d+1)*d/2 < t) return;
+            if(d == 0) {
                 ans.push_back(path);
                 return;
             }
-            int d = k - path.size();//还需要选d个
-            if((9 + 9-d+1) * d / 2 < sum) //可选的数中d个最大的都不够sum，剪枝
-                return;
-            if(sum - i < 0)// 选最小的都让sum-i小于0了，也剪枝
-                return;
 
             if(9 - i + 1 > d){  //可选数不够d个了，剪枝
-                dfs(i+1, sum);
+                dfs(i+1, t);
             }
             path.push_back(i);
-            dfs(i+1, sum-i);
+            dfs(i+1, t-i);
             path.pop_back();
         };
         dfs(1, n);
