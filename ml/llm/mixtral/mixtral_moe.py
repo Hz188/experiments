@@ -1,6 +1,28 @@
+'''
+路由过程放在MoEBlock内部了
+
+FWD过程
+先路由
+1. hidden先reshape 到(b * s, h) -> 然后过gate 得到 (b*s, n_exp) logits
+2. logits过softmax得到weight
+3. 然后选top_k
+    routing_weights, selected_experts = torch.topk(routing_weights, self.top_k, dim=-1)
+    返回值是对应的专家的weights和对应所在dim的索引号
+再计算
+4. 得到token的mask
+5. for循环取出一个专家
+    5.1 通过索引转换，只计算分配给这个专家的token
+    5.2 然后通过index_add_，对应位置去做加法
+6. reshape回 b s h形状
+返回
+7. 隐层状态，路由的logits 两个返回值
+
+'''
 # %%
+
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from transformers.models.mistral.modeling_mistral import MistralModel 
 from transformers.models.mixtral.modeling_mixtral import MixtralModel, MixtralSparseMoeBlock, MixtralConfig, MixtralBLockSparseTop2MLP
 
@@ -13,59 +35,42 @@ final_hidden_states, router_logits = moe_block(input)
 final_hidden_states.shape, router_logits
 
 
-# %%
-'''
-路由过程放在MoEBlock内部了
+# %%  topk demo
+input = torch.randn(2,4)
+torch.topk(input, k=2, dim=-1), input
 
-FWD过程
-先路由
-1. hidden先reshape 到(b * s, h) -> 然后过gate 得到 (b*s, n_exp) logits
-2. logits过softmax得到weight
-3. 然后选top_k
-    routing_weights, selected_experts = torch.topk(routing_weights, self.top_k, dim=-1)
-    返回值是对应的专家的weights和对应的索引号
-再计算
-4. 得到token的mask
-5. for循环取出一个专家
-    5.1 通过索引转换，只计算分配给这个专家的token
-    5.2 然后通过index_add_，对应位置去做加法
-6. reshape回 b s h形状
-返回
-7. 隐层状态，路由的logits两个返回值
-
-'''
-
-# %%
-index = [ [0, 2],
-         [0, 1],
-        [3, 2],
-        [3, 1],
-        [0, 1],
-        [0, 2],
-        [3, 0],
-        [2, 1],
-        [0, 3],
-        [1, 0]]  # (10, 2)
+# %% one_hot demo 
+index = [
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [1, 2],
+    [1, 3],
+    [2, 3], 
+    ]  # (6, 2)  6个token，每个token选了两个专家
 index = torch.tensor(index)
-mask = torch.nn.functional.one_hot(index, num_classes=4)
-expert_mask = mask.permute(2,1,0)
-mask.shape, expert_mask  # torch.Size([10, 2, 4]), torch.Size([4, 2, 10]))
-# 10,2,4: 10个token，每个token有两个one-hot向量，每个one-hot从4个里选了1个专家，即10个token每个选了两个专家
-# 4,2,10: 4个专家，有两个长度10的列表，列表被0-1填充，代表每个专家要处理10个token中的哪几个
-# %%
+mask = torch.nn.functional.one_hot(index, num_classes=4)  # 这是token视角下对expert的mask：token要选哪几个专家
+expert_mask = mask.permute(2,1,0)  # 这是expert视角下token的mask：expert要处理哪几个token
+mask, expert_mask  # torch.Size([6, 2, 4]), torch.Size([4, 2, 6]))
+# 6,2,4: 6个token，每个token有两个one-hot向量，每个one-hot从4个里选1个专家，即6个token每个选了两个专家
+# 4,2,6: 4个专家，有两个长度6的列表，列表被0-1填充，代表每个专家要处理6个token中的哪几个
+
+# %% where demo
+# torch where 对0-1张量的作用是，返回1的横坐标和纵坐标
 idx, top_x = torch.where(expert_mask[0])
-idx, top_x  # 一个是行号，一个是列号
-# (tensor([0, 0, 0, 0, 0, 1, 1]), tensor([0, 1, 4, 5, 8, 6, 9]))
-# %%
+idx, top_x  # 一个是行号，一个是列号 -> 要处理的token的坐标
+# (tensor([0, 0, 0]), tensor([0, 1, 2]))
+
+
+# %% None indices demo
 a = torch.arange(16).reshape(8,2)
 a[None, [1,2,5,6]].reshape(-1, 2)
-# %%
+
+# %% index_add demo
 a.index_add(0, torch.tensor([1,2,5,6]), torch.ones(4,2, dtype=torch.long))
+
 # %%
-# torch where对0-1张量的作用是，返回1的横坐标和纵坐标
-torch.where(torch.tensor([[1,1,0,0]]))
-# %%
-# 具体注释
+# 全篇整体注释
 
 class MixtralSparseMoeBlock(nn.Module):
     def __init__(self, config):
@@ -121,6 +126,8 @@ class MixtralSparseMoeBlock(nn.Module):
             # 注意这里用None加了一个维度，实际还是从 [20,512] 20里面取，也就是取哪一个token
             current_state = hidden_states[None,top_x_list].reshape(-1,hidden_dim)
             # 注意这里把原始词向量的某些token的词向量取出来，过了专家层再与路由权重相乘
+            # routing_weights[top_x_list] 取出了当前专家处理的token的所有专家权重
+            # routing_weights[top_x_list, idx_list] 再次索引相当于取出了当前专家处理的token的当前专家的权重
             current_hidden_states = expert_layer(current_state) * routing_weights[top_x_list,idx_list]
             # 添加到final_hidden_states 第0个维度 索引 添加的权重
             final_hidden_states.index_add_(0,top_x,current_hidden_states)
