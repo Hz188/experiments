@@ -66,17 +66,19 @@ class EPMixtralSparseMoeBlock(MixtralSparseMoeBlock):
         selected_experts_idx = selected_experts.argsort()
         
         # (3,2) -> (6,2) [t0, t1, t2, t0, t1, t2]
-        # hidden_states.repeat()[3] 含义就是：token id = 3，即在selected_experts中的索引是3，对应专家id=0，其输入是hidden_states[3]
-        # hidden_states.repeat()[5] 含义就是：token id = 5，即在selected_experts中的索引是5，对应专家id=0，其输入是hidden_states[5]
-        # hidden_states.repeat()[0] 含义就是：token id = 0，即在selected_experts中的索引是0，对应专家id=2，其输入是hidden_states[0]
-        # hidden_states.repeat()[1] 含义就是：token id = 1，即在selected_experts中的索引是1，对应专家id=2，其输入是hidden_states[1]
-        # hidden_states.repeat()[2] 含义就是：token id = 2，即在selected_experts中的索引是2，对应专家id=2，其输入是hidden_states[2]
-        # hidden_states.repeat()[4] 含义就是：token id = 4，即在selected_experts中的索引是4，对应专家id=3，其输入是hidden_states[4]
+        # dispatch states[0] = hidden_states.repeat()[3] 含义就是：token id = 3，对应专家id=0，其输入是hidden_states[3]
+        # dispatch states[1] = hidden_states.repeat()[5] 含义就是：token id = 5，对应专家id=0，其输入是hidden_states[5]
+        # dispatch states[2] = hidden_states.repeat()[0] 含义就是：token id = 0，对应专家id=2，其输入是hidden_states[0]
+        # dispatch states[3] = hidden_states.repeat()[1] 含义就是：token id = 1，对应专家id=2，其输入是hidden_states[1]
+        # dispatch states[4] = hidden_states.repeat()[2] 含义就是：token id = 2，对应专家id=2，其输入是hidden_states[2]
+        # dispatch states[5] = hidden_states.repeat()[4] 含义就是：token id = 4，对应专家id=3，其输入是hidden_states[4]
         # 整体意思：
         #   通过token id，得到对应的token states
-        #   而这个token id是按专家id排序的，所以这样放置后的states也是按专家id排序的，专家号越小 states越靠前）
+        #       也就是原先的 hidden states重新排列一下，和排序后的专家id对应
+        #       而这个token id是按专家id排序的，所以这样放置后的states也是按专家id排序的，专家号越小 states越靠前
         dispatch_states = hidden_states.repeat(self.top_k, 1)[selected_experts_idx] 
 
+        # [2, 0, 3, 1]
         input_split_sizes = selected_experts.bincount(minlength=self.num_experts)  # (4,) 统计当前rank中3个token选出的6个专家，每个专家几个token [2,0,3,1] 表示专e0 2个 e1 0个，e2 3个 e3 1个
 
         # ep=2, 4个专家 也就是
@@ -87,25 +89,28 @@ class EPMixtralSparseMoeBlock(MixtralSparseMoeBlock):
         # [2,0,3,1] [2,0,3,1] -> [2,0,2,0] [3,1,3,1]
         # all_to_all_single: 先split张量，再scatter给所有进程，然后再concat为一个张量
         # 文字解释一下：
-        #   rank0上是 2 0 3 1 e0 e1，所以要处理的输入就是 2 0，3 1是 e2 e3的输入，在rank1上，要发送过去
-        #   rank1上是 2 0 3 1 e2 e3，所以要处理的输入就是 3 1，2 0是 e0 e1的输入，在rank0上，要发送过去
+        #   rank0上是 bin:2 0 3 1 e:e0 e1，所以e0 e1要处理的输入就是 2 0
+        #                                                       3 1 是 e2 e3的输入，e2 e3在rank1上，要发送过去
+        #   rank1上是 bin:2 0 3 1 e:e2 e3，所以e2 e3要处理的输入就是 3 1
+        #                                                       2 0 是 e0 e1的输入，在rank0上，要发送过去
         #   同样的 rank0 和 rank1 也会接收对方发来的输入
         dist.all_to_all_single(output_split_sizes, input_split_sizes, group=self.ep_group)  
 
         # [2,0,3,1] -> [[2,0], [3,1]] -> [2, 4]  all_to_all_uneven的输入token情况分别是r0 2个和r1 4个
         # 文字解释：
-        #       这里相当于统计的是rank上处理几个token，没有细分到rank上具体的专家处理几个token，即 rank0 6个里处理两个，rank1 6个里处理4个
+        #       这里相当于统计的是rank上处理几个token，没有细分到rank上具体的专家处理哪几个token
+        #           即 rank0 6个里处理两个，rank1 6个里处理4个
         #       rank0上的e0和e1具体处理哪几个token，通过下方output_split_sizes.view().tolist()得到的
         input_split_list = input_split_sizes.view(self.ep_size, self.num_experts_per_ep).sum(dim=-1).tolist()
         
         # [2, 0, 2, 0] -> [[2,0], [2,0]] -> [2, 2] 
         # [3, 1, 3, 1] -> [[3,1], [3,1]] -> [4, 4]
         # all_to_all_uneven的接收token的切分情况分别是 
-        #   r0: [2,2] r0从r0取2个 从r1取2个
-        #   r1: [4,4] r1从r0取4个 从r1取4个
+        #   r0: [2, 2] r0从r0取2个 从r1取2个
+        #   r1: [4, 4] r1从r0取4个 从r1取4个
         output_split_list = output_split_sizes.view(self.ep_size, self.num_experts_per_ep).sum(dim=-1).tolist()
         
-        # 关键通信来了：
+        # 关键通信：
         #   根据 input_split_list [2, 4]
         #   切分 dispatch_states  [6, h] -> [2, h], [4, h] -> 发送
         #       rank0 发送 [4, h] 收 [2, h] -> 最终 output_states = [4, h]
@@ -118,27 +123,36 @@ class EPMixtralSparseMoeBlock(MixtralSparseMoeBlock):
         output_states = MoeInGradScaler.apply(output_states, self.ep_size)  #   (4, h) (8, h) 
         if output_states.size(0) > 0:
             if self.num_experts_per_ep == 1:
-                # ep_size = ep_num 每个rank只有一个专家，所以直接计算
-                # 不需要将output_state继续split
+                # ep_size = ep_num 每个rank只有一个专家，所以收来的 (4, h) or (8, h) 直接送入这个专家计算就行
+                # 不需要将output_state继续split，来进一步区分当前rank上的不同专家的输入
                 expert = self.experts[self.expert_start_idx]
                 output_states = expert.act_fn(expert.w1(output_states)) * expert.w3(output_states)
                 output_states = expert.w2(output_states)
             else:
                 # ep_size < ep_num 每个rank有多个专家
                 # 那么output_state就需要split，得到每个专家需要的子部分
-                
-                # 前面有output_split_size
+                # (x1, h) (x2, h) 其中
+                #   rank0 x1 + x2 = 4
+                #   rank1 x1 + x2 = 8
+                 
+                # 前面有output_split_size  
+                #   len(output_split_size)是等于 num_experts_per_rank * ep_size 这里是 4 = 2 * 2
                 #   rank0 [2,0,2,0]
                 #   rank1 [3,1,3,1]
                 # 含义是
                 #   rank0上目前 output_states (4, h) 要分为 2份 0份 2份 0份 作为对应专家的输入
                 #   rank0上目前 output_states (8, h) 要分为 3份 1份 3份 1份 作为对应专家的输入
+                # 同时：
+                #   切分后的每一份输入的index % num_experts_per_ep 相等的说明是同一个专家，来自本地的和其他rank的输入
+                # output_states_splits
+                #   rank0: [2, h] [] [2, h] []
+                #   rank1: [3, h] [1, h] [3, h] [1, h]
                 output_states_splits = output_states.split(output_split_sizes.tolist())
                 output_states_list = []
                 for i, split_states in enumerate(output_states_splits): 
                     if split_states.size(0) == 0:
                         continue
-                    # %号是用来取模，因为本地专家的输入有两部分：一部分来源于本地，一部分来源于其他rank通信
+                    # %号是用来取模，因为本地专家的输入有两部分：一部分来源于本地，一部分来源于其他rank通信，通过%取模映射到同一个专家
                     #   rank0 2, 0, 2, 0 前两个 2 0 是来源于本地的输入，后两个 2 0 是来源于其他rank通信过来的输入
                     #   rank1 3, 1, 3, 1 前两个 3 1 是来源于rank0通信过来的输入，后两个 3 1 是来源于其他rank通信过来的输入
                     expert = self.experts[self.expert_start_idx + i % self.num_experts_per_ep]
@@ -158,16 +172,25 @@ class EPMixtralSparseMoeBlock(MixtralSparseMoeBlock):
         #   rank1  (4, 4)
         # 注意下面调用input_split_list 和 output_split_list换位置了：也就是将states按output进行split发送，按input进行接收
         # output_states 
-        #   rank0  (4, h) -> (2, 2) 切 发后2
-        #   rank1  (8, h) -> (4, 4) 切 发前4
-        # 最终 dispatch_states
-        #   rank0  (6, h)
-        #   rank1  (6, h) 
+        #   rank0  (4, h) -> 按(2, 2) 切 (2, h) (2, h) 发后2
+        #   rank1  (8, h) -> 按(4, 4) 切 (4, h) (4, h) 发前4
+        # 双方通信结束得到 dispatch_states
+        #   rank0  (6, h) = 本地 (2, h) + 收 (4, h)
+        #   rank1  (6, h) = 收 (2, h) + 本地 (4, h)
         dispatch_states, _ = all_to_all_uneven(output_states, output_split_list, input_split_list, self.ep_group)  # 专家处理完对应token的输出，要返还回去给别的rank
         
-        # 注意这里的dispatch states
-        #   顺序是 token 按 专家id 排序的放置顺序
-        #   我们需要恢复到原来的token顺序
+        # 注意这里收回来的 dispatch states
+        #   顺序是专家id 排序的顺序 [0, 0, 2, 2, 2, 3]
+        #       对应  token id   [3, 5, 0, 1, 2, 4]
+        #       也就是
+        #           dispatch states[0] -> tokenid=3 -> t01
+        #           dispatch states[1] -> tokenid=5 -> t21
+        #           dispatch states[2] -> tokenid=0 -> t00
+        #           dispatch states[3] -> tokenid=1 -> t10
+        #           dispatch states[4] -> tokenid=2 -> t21
+        #           dispatch states[5] -> tokenid=4 -> t11
+        #   我们需要恢复到原来的token顺序 [t00, t10, t20, t01, t11, t21]
+        #                对应的专家id   [2,   2,   2,   0,   3,   0] 
         
         recover_experts_idx = torch.empty_like(selected_experts_idx)  # (6,)
         # selected_experts_idx = [3,5,0,1,2,4]  里面的值是 token id 通过selected_experts[token id] 可以得到 专家id，是一个映射
@@ -179,6 +202,15 @@ class EPMixtralSparseMoeBlock(MixtralSparseMoeBlock):
         #   token id = 3，其对应的输入是dispatch states[0] 应该放回到 dispatch states[3]的位置
         #   token id = 4，其对应的输入是dispatch states[5] 应该放回到 dispatch states[4]的位置
         #   token id = 5，其对应的输入是dispatch states[1] 应该放回到 dispatch states[5]的位置
+        # 代入具体值就形象了
+        # recover_experts_idx[3] = [0] -> recover_experts_idx[0] = [2]
+        # recover_experts_idx[5] = [1] -> recover_experts_idx[1] = [3]
+        # recover_experts_idx[0] = [2] -> recover_experts_idx[2] = [4]
+        # recover_experts_idx[1] = [3] -> recover_experts_idx[3] = [0]
+        # recover_experts_idx[2] = [4] -> recover_experts_idx[4] = [5]
+        # recover_experts_idx[4] = [5] -> recover_experts_idx[5] = [1]
+        # 首先：索引含义是 token id 值是 专家id
+        # 这个变换相当于是：从 值（专家id) 升序 索引(token id）升序了
         recover_experts_idx[selected_experts_idx] = torch.arange(   
             selected_experts_idx.size(0), device=selected_experts_idx.device
         )
