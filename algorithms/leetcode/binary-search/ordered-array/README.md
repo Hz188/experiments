@@ -2,7 +2,7 @@
 
 ## 2300题 一个知识点
 
-对于正整数
+对于正整数，上取整和下取整可以转换
 
 $$
 xy\ge\text{success}等价于 y\ge\left\lceil\frac{success}{x}\right\rceil
