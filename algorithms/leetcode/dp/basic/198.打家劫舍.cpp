@@ -37,15 +37,23 @@ public:
             return dfs(n-1);
             */
         // step 3. 改递推表达形式
-        vector<int> memo(n+1); // dfs(n-1)表示抢到n-1的最大值
+        vector<int> memo(n+2, 0); // dfs(n-1)表示抢到n-1的最大值
         //那么memo[n] 表示抢到[0...n-1]的最大值
         //注意索引的偏移
-        memo[0] = 0;
-        memo[1] = nums[0];
-        for(int i = 2; i <= n; i++) {
-            memo[i] = max(memo[i-1], memo[i-2] + nums[i-1]);
+        for(int i = 0; i < n; i++) {
+            memo[i+2] = max(memo[i+1], memo[i] + nums[i]);
         }
-        return memo[n];
+        return memo[n+1];
+
+        //压缩
+        int n = nums.size();
+        int f0 = 0, f1 = 0;
+        for(int i = 0; i < n; i++) {
+            int f2 = max(f1, f0 + nums[i]);
+            f0 = f1;
+            f1 = f2;
+        }
+        return f1;
     }
 };
 // @lc code=end

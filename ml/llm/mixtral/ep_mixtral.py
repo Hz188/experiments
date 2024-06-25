@@ -1,4 +1,6 @@
 import torch
+import torch.nn as nn
+from typing import Set
 import torch.nn.functional as F
 import torch.distributed as dist
 from torch .distributed import ProcessGroup
@@ -7,8 +9,25 @@ import torch.multiprocessing as mp
 
 from transformers.models.mixtral.modeling_mixtral import MixtralSparseMoeBlock, MixtralConfig, MixtralBLockSparseTop2MLP
 
+
 # code is copyed from colossalai/shardformer/modeling/mixtral.py
 # add some comment for learning expert parallel
+
+def set_tensors_to_none(model: nn.Module, exclude: Set[nn.Module] = set()) -> None:
+    """Set all parameters and buffers of model to None
+
+    Args:
+        model (nn.Module): The model to set
+    """
+    if model in exclude:
+        return
+    for child in model.children():
+        set_tensors_to_none(child, exclude=exclude)
+    for n, p in model.named_parameters(recurse=False):
+        setattr(model, n, None)
+    for n, buf in model.named_buffers(recurse=False):
+        setattr(model, n, None)
+
 class EPMixtralSparseMoeBlock(MixtralSparseMoeBlock):
     def __init__(self, config):
         self.moe_info = None
