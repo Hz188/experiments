@@ -15,7 +15,7 @@ public:
         int m = t.size();
         vector<vector<int>> memo(n, vector<int>(m, -1));
         function<int(int, int)> dfs = [&](int i, int j) {
-            if(i < 0 || j < 0)
+            if(i < 0 || j < 0) // < 0 表示其中一个字符串为空
                 return 0;
             int& res = memo[i][j];
             if(res != -1) return memo[i][j];
