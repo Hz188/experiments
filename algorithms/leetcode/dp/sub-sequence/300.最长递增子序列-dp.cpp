@@ -16,7 +16,7 @@ public:
         vector<int> memo(n, 1);
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < i; ++j) {
-                if(nums[j] < nums[i])
+                if(nums[j] < nums[i]) //如果不是严格递增，允许相等元素，那么这里就是 <=
                     memo[i] = max(memo[j] + 1, memo[i]);
             }
         }
