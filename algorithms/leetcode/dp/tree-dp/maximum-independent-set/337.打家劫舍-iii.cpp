@@ -17,23 +17,24 @@
  * };
  */
 #include <functional>
+#include <tuple>
 using namespace std;
 class Solution {
 public:
     int rob(TreeNode* root) {
-        auto res = dfs(root);
-        return max(res[0], res[1]);
+        auto [rob_root, not_rob_root] = dfs(root);
+        return max(rob_root, not_rob_root);
     }
 
-    vector<int> dfs(TreeNode* root) {
+    tuple<int, int> dfs(TreeNode* root) {
         if(!root) return {0, 0}; 
-        auto l = dfs(root->left);
-        auto r = dfs(root->right);
+        auto [rob_l, not_rob_l] = dfs(root->left);
+        auto [rob_r, not_rob_r] = dfs(root->right);
 
-        int rob = l[1] + r[1] + root->val;
-        int not_rob = max(l[0], l[1]) + max(r[0], r[1]);            
+        int rob_root = not_rob_l + not_rob_r + root->val;
+        int not_rob_root = max(rob_l, not_rob_l) + max(rob_r, not_rob_r);            
 
-        return {rob, not_rob};
+        return {rob_root, not_rob_root};
 
     }
 };

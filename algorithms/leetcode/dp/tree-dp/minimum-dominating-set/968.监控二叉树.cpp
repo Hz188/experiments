@@ -20,7 +20,7 @@
 using namespace std;
 class Solution {
     tuple<int, int, int> dfs(TreeNode *node) {
-        if (node == nullptr) {
+        if (!node) {
             return {INT_MAX / 2, 0, 0}; // 除 2 防止加法溢出
         }
         auto [l_choose, l_by_fa, l_by_children] = dfs(node->left);

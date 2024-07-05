@@ -1,16 +1,17 @@
 /*
- * @lc app=leetcode.cn id=1245 lang=cpp
+ * @lc app=leetcode.cn id=2246 lang=cpp
  *
- * [1245] 相邻字符不同的最长路径
+ * [2246] 相邻字符不同的最长路径
  */
 
 // @lc code=start
 #include <vector>
+#include <string>
 #include <functional>
 using namespace std;
 class Solution {
 public:
-    int longestPath(vector<int> &parent) {
+    int longestPath(vector<int> &parent, string &s) {
         // DP求树的直径的模板
         int n = parent.size();
         vector<vector<int>> g(n);
@@ -21,10 +22,12 @@ public:
         function<int(int)> dfs = [&](int x /*, int fa*/) -> int {
             int maxLen = 0;
             for (int y : g[x]) {
-                // if y == fa: continue //如果题目说邻居包括了父节点
+                // if y == fa: continue //如果题目说邻居包括了父节点，那么g数组中g[i] = {i0, i1, i2, p} p是父节点，那么dfs时候，父节点要跳过
                 int len = dfs(y) + 1;  // dfs(y, x)
-                ans = max(ans, maxLen + len);
-                maxLen = max(maxLen, len);
+                if (s[y] != s[x]) {  //这题相邻节点要不同，有这个if，1245没有这个if
+                    ans = max(ans, maxLen + len);
+                    maxLen = max(maxLen, len);
+                }
             }
             return maxLen;
         };
@@ -33,3 +36,4 @@ public:
     }
 };
 // @lc code=end
+
