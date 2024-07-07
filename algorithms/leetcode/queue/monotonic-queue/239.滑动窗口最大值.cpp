@@ -16,7 +16,7 @@ public:
         deque<int>  q{};
         for(int i = 0; i < n; i++) {
             // 1. into window
-            while(!q.empty() && nums[q.back()] <= nums[i]) {
+            while(!q.empty() && nums[i] > nums[q.back()]) {
                 q.pop_back();
             }
             q.push_back(i);
@@ -28,7 +28,7 @@ public:
                 q.pop_front();
             }
             // 3. record answer
-            if(i >= k-1){
+            if(i >= k - 1){
                 ans.push_back(nums[q.front()]);
             }
         }

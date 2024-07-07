@@ -15,10 +15,10 @@ public:
         vector<int> res(n);
         stack<int> s{};
         for(int i = 0; i < n; i++) {
-            while(!s.empty() && temperatures[s.top()] <= temperatures[i]) {
+            while(!s.empty() && temperatures[s.top()] < temperatures[i]) {
                 int j = s.top();
+                res[j] = i - j;
                 s.pop();
-                res[j] = i -  j;
             }
             s.push(i);
         } 

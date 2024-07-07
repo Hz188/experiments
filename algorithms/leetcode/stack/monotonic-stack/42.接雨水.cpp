@@ -15,6 +15,10 @@ public:
         stack<int> s{};
         int n = height.size();
         for(int i = 0; i < n; i++) {
+            //整体遍历逻辑是
+            //  单调栈元素是越来越小的
+            //  那么现在当前 i，找了一个比栈顶大的，因为栈单调性，次顶也大于栈顶
+            //  所以就找到了一个“两高夹一低”的区域，就可以计算出可存的雨水了
             while (!s.empty() && height[i] > height[s.top()]) {
                 int bottom_h = height[s.top()];
                 s.pop();
