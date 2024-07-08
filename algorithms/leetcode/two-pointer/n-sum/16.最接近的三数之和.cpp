@@ -13,9 +13,8 @@ public:
         int n = nums.size();
         sort(nums.begin(), nums.end());
         int ans = 0;
-        int diff = INT_MAX;
+        int min_diff = INT_MAX;
         for(int i = 0; i < n-2; i++) {
-            /*
             int x = nums[i];
             if (i > 0 && x == nums[i - 1]) {
                 continue; // 优化三
@@ -39,7 +38,6 @@ public:
                 }
                 continue;
             }
-            */
 
             int l = i+1;
             int r = n-1;
@@ -48,16 +46,16 @@ public:
                 if(sum == target) return target;
                 if(sum > target) {
                     int cur_diff = sum - target;
-                    if (cur_diff < diff) {
+                    if (cur_diff < min_diff) {
                         ans = sum;
-                        diff = cur_diff;
+                        min_diff = cur_diff;
                     }
                     r--;
                 } else {  // sum < target
                     int cur_diff = target - sum;
-                    if (cur_diff < diff) {
+                    if (cur_diff < min_diff) {
                         ans = sum;
-                        diff = cur_diff;
+                        min_diff = cur_diff;
                     }
                     l++;
                 }

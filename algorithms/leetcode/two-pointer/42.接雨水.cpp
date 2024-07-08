@@ -41,7 +41,7 @@ private:
         int pre_max = 0;
         int suf_max = 0;
         //left 和right的移动规则是，谁的max小谁移动
-        while(left <right) { // left == right的情况是，顶峰相见了，一滴水都装不下
+        while(left < right) { // left == right的情况是，顶峰相见了，一滴水都装不下
             pre_max = max(pre_max, height[left]);
             suf_max = max(suf_max, height[right]);
             if(pre_max < suf_max) {
