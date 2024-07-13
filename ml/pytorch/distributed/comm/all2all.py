@@ -11,7 +11,11 @@ def run_all_to_all_single(rank, world_size):
     torch.cuda.set_device(rank)
 
     # 每个进程创建一个张量，将其数值设置为其rank值
-    tensor = torch.ones(4, 1).cuda() * rank
+    if rank == 0:
+        tensor = torch.ones(6, 1).cuda() * rank
+    if rank == 1:
+        tensor = torch.ones(0, 1).cuda() * rank
+
 
     # 为接收张量分配空间
 
@@ -19,10 +23,10 @@ def run_all_to_all_single(rank, world_size):
     print(f'Rank {rank} before all_to_all_single: {tensor}')
 
     # 执行 all-to-all 单张量通信
-    output_size = [[1,1], [3,3]]
-    output_shape = [[2,],[6,]]
-    recv_tensor = torch.empty(output_shape[rank]).cuda()
-    dist.all_to_all_single(recv_tensor, tensor, output_size[rank], [1,3])
+    input_splits = [[6, 0], [0, 0]]
+    output_splits = [[6, 0], [0, 0]]
+    recv_tensor = torch.empty(sum(output_splits[rank])).cuda()
+    dist.all_to_all_single(recv_tensor, tensor, output_splits[rank], input_splits[rank])
 
     # 打印接收到的tensor
     print(f'Rank {rank} after all_to_all_single: {recv_tensor}')
@@ -31,25 +35,5 @@ def run_all_to_all_single(rank, world_size):
     dist.destroy_process_group()
 
 if __name__ == "__main__":
-    world_size = 2  # 假设有4个进程
+    world_size = 2  # 假设有2个进程
     mp.spawn(run_all_to_all_single, args=(world_size,), nprocs=world_size, join=True)
-
-# %%
-t = torch.arange(16).reshape(4,4)
-t = t.split([2,0,2,0])
-# %%
-a = [tt + 1 for tt in t]
-torch.cat(a)
-# %%
-
-a = torch.empty(6, dtype=torch.long)
-a[torch.tensor([3,5,0,1,2,4])] = torch.arange(6)
-a
-
-# %%
-
-a = torch.randn(2,2,4)
-b = torch.tensor([[1,2], [3,4]])
-a[0].shape, b[:,0, None].shape
-a, (a[0]*b[:,0,None]).shape
-# %%

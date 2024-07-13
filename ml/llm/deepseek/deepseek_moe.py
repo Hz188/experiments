@@ -9,7 +9,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
 
 # %%  官方demo
 
-model_name = "/mnt/jfs-hdd/share/models/deepseek-moe-16b-base"
+model_name = "/home/nvme-share/home/genghaozhe/hf_model/deepseek-ai/deepseek-moe-16b-base"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16, device_map="auto", trust_remote_code=True)
 model.generation_config = GenerationConfig.from_pretrained(model_name)
@@ -24,9 +24,26 @@ print(result)
 
 # %% 
 from deepseek_file.configuration_deepseek import DeepseekConfig
-from deepseek_file.modeling_deepseek import DeepseekMoE
+from deepseek_file.modeling_deepseek import DeepseekMoE, DeepseekModel
 
-config = DeepseekConfig(hidden_size=4, intermediate_size=8, moe_intermediate_size=2, n_routed_experts=6, n_shared_experts=2, num_experts_per_tok=2)
+config = DeepseekConfig(
+    vocab_size=1024,
+
+    hidden_size=4, 
+    intermediate_size=8, 
+    moe_intermediate_size=2, 
+
+    num_experts_per_tok=2,
+    n_routed_experts=4,
+    n_shared_experts=2,
+
+    num_hidden_layers=4,
+    first_k_dense_replace=2,  # 2 dense + 2 moe
+
+    num_attention_heads=4,
+    num_key_value_heads=4,
+)
+model = DeepseekModel(config)
 moe_block = DeepseekMoE(config)
 
 input = torch.randn(2, 5, 4)
@@ -36,5 +53,9 @@ out.shape
 # %%
 moe_block
 
+
+# %%
+
+model
 
 # %%
