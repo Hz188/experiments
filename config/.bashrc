@@ -1,0 +1,7 @@
+alias glg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias gc="git commit"
+alias ga="git add"
+alias gck="git checkout"
+alias gst="git status"
+alias gcp="git cherry-pick"
+alias gbr="git branch"
