@@ -1,0 +1,3 @@
+[submodule "nccl-learn/hoti-2025-gpu-comms-tutorial"]
+	path = nccl-learn/hoti-2025-gpu-comms-tutorial
+	url = https://github.com/Hz188/hoti-2025-gpu-comms-tutorial

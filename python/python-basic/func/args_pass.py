@@ -19,3 +19,9 @@ c = b[:]
 c == b, c is b
 
 # %%
+def f(a,b,c,*,d):
+    print(a,b,c,d)
+
+# f(1,2,3,4)  # fail
+f(1,2,3,d=4)  # pass
+# %%
