@@ -25,6 +25,7 @@ device = torch.cuda.current_device()
 out = symm_mem.empty(numel, dtype=dtype, device=torch.device(f"cuda:{device}"))
 hdl = symm_mem.rendezvous(out, group=group_name)
 
-# torch.ops.symm_mem.multimem_all_reduce_(out, "sum", group_name)  # SM 90之后支持多播才可以 A卡不支持
-torch.ops.symm_mem.one_shot_all_reduce(out, "sum", group_name)  #  p2p
-#  torchrun  --standalone --nnodes=1 --nproc-per-node=2 hello_world.py   # pdc H卡可以跑 
+# torch.ops.symm_mem.multimem_all_reduce_(out, "sum", group_name)  # SM 90之后支持多播可以使用multimem实现oneshot (H卡之后)
+torch.ops.symm_mem.one_shot_all_reduce(out, "sum", group_name) # SM 90之前不支持多播，使用p2p实现oneshot
+# torch.ops.symm_mem.multimem_one_shot_all_reduce(out, "sum", group_name) # SM 90之前不支持多播，使用p2p实现oneshot
+#  torchrun  --standalone --nnodes=1 --nproc-per-node=2 test_all_reduce.py   

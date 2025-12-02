@@ -14,7 +14,7 @@ def run_all_to_all_single(rank, world_size):
     if rank == 0:
         tensor = torch.ones(6, 1).cuda() * rank
     if rank == 1:
-        tensor = torch.ones(0, 1).cuda() * rank
+        tensor = torch.ones(4, 1).cuda() * rank
 
 
     # 为接收张量分配空间
@@ -23,8 +23,8 @@ def run_all_to_all_single(rank, world_size):
     print(f'Rank {rank} before all_to_all_single: {tensor}')
 
     # 执行 all-to-all 单张量通信
-    input_splits = [[6, 0], [0, 0]]
-    output_splits = [[6, 0], [0, 0]]
+    input_splits = [[4, 2], [3, 1]]
+    output_splits = [[4, 3], [2, 1]]
     recv_tensor = torch.empty(sum(output_splits[rank])).cuda()
     dist.all_to_all_single(recv_tensor, tensor, output_splits[rank], input_splits[rank])
 
